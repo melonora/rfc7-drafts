@@ -1,0 +1,554 @@
+id: https://w3id.org/ome/ngff/channel_types
+name: OME_NGFF_Channel_Types
+version: 0.1.0
+description: >-
+  This schema defines the core channel types of the draft OME-NGFF channel metadata RFC7. Each type is a subclass of
+  the base Channel that pins `type` with equals_string and adds only the attributes needed to interpret its values.
+  Enumerated attributes accept the listed core values or an extension value given as an http(s) URI. A channel whose
+  type is not a core type validates as OtherChannel, which accepts extension attributes.
+
+prefixes:
+  ome: https://w3id.org/ome/
+  ngff: https://w3id.org/ome/ngff/
+  linkml: https://w3id.org/linkml/
+  orcid: https://orcid.org/
+imports:
+  - linkml:types
+  - ngff_channel
+default_range: string
+default_prefix: ngff
+
+created_on: "2026-11-05T00:00:00Z"
+created_by: orcid:0000-0003-1666-5421
+
+classes:
+  Band:
+    description: >
+      A spectral position or window. Either `center` (with an optional full `width`) or both `min` and `max` MUST be
+      given. The unit is nanometer, electronvolt, kiloelectronvolt, 1/centimeter for Raman shift and wavenumber, or the
+      literal "m/z" for mass-to-charge.
+    attributes:
+      center:
+        range: float
+      width:
+        description: Full width of the window around `center`.
+        range: float
+      min:
+        range: float
+      max:
+        range: float
+      unit:
+        required: true
+    any_of:
+      - slot_conditions:
+          center:
+            required: true
+      - slot_conditions:
+          min:
+            required: true
+          max:
+            required: true
+
+  Value:
+    description: A number with a unit.
+    attributes:
+      value:
+        range: float
+        required: true
+      unit:
+        required: true
+
+  Interval:
+    description: A closed interval with a unit, e.g. a STEM detector collection angle.
+    attributes:
+      min:
+        range: float
+        required: true
+      max:
+        range: float
+        required: true
+      unit:
+        required: true
+
+  Model:
+    description: The model that produced a computed channel.
+    attributes:
+      name:
+        required: true
+      version:
+      uri:
+        description: Link to the model, e.g. its page in a model zoo.
+        range: string
+        pattern: "^[A-Za-z][A-Za-z0-9+.-]*:\\S+$"
+
+  EmulatedChannel:
+    description: >
+      What a predicted channel stands in for, written like a channel without `id` and `name`, e.g.
+      { "type": "fluorescence", "entities": [...] } for virtual staining. It MAY carry the attributes of that type.
+    extra_slots:
+      allowed: true
+    attributes:
+      type:
+        required: true
+      entities:
+        range: Entity
+        multivalued: true
+        inlined_as_list: true
+
+  DerivedProvenance:
+    is_a: Provenance
+    description: Provenance of a channel that MUST be derived.
+    slot_usage:
+      origin:
+        equals_string: derived
+        required: true
+
+  FluorescenceChannel:
+    is_a: Channel
+    description: >
+      Emission from a fluorophore, under any excitation scheme. The fluorophore itself is an `entities` entry with role
+      signal.
+    slot_usage:
+      type:
+        equals_string: fluorescence
+    attributes:
+      excitation:
+        description: Excitation band; for multiphoton excitation, the laser wavelength.
+        range: Band
+        inlined: true
+      emission:
+        description: Detection window.
+        range: Band
+        inlined: true
+      photons:
+        description: Photons absorbed per excitation event. Defaults to 1.
+        range: integer
+        minimum_value: 1
+        ifabsent: int(1)
+      measurement:
+        description: >
+          What is measured from the emission. Defaults to intensity. A lifetime channel pairs with a `quantity` of
+          lifetime in nanoseconds.
+        any_of:
+          - range: FluorescenceMeasurement
+          - range: ExtensionValue
+        ifabsent: string(intensity)
+      acquisition_mode:
+        any_of:
+          - range: AcquisitionMode
+          - range: ExtensionValue
+
+  OpticalChannel:
+    is_a: Channel
+    description: Non-fluorescent light microscopy, transmitted or reflected, in biology and materials science.
+    slot_usage:
+      type:
+        equals_string: optical
+    attributes:
+      contrast_method:
+        any_of:
+          - range: ContrastMethod
+          - range: ExtensionValue
+      illumination:
+        any_of:
+          - range: Illumination
+          - range: ExtensionValue
+      wavelength:
+        description: Illumination band.
+        range: Band
+        inlined: true
+      polarization:
+        description: Polarization setting, e.g. "crossed" or "analyzer 45 degree".
+      acquisition_mode:
+        any_of:
+          - range: AcquisitionMode
+          - range: ExtensionValue
+
+  ElectronChannel:
+    is_a: Channel
+    description: >
+      A detector signal in SEM, TEM or STEM, including cryo-EM and FIB-SEM. Energy-resolved signals (EDS, EELS,
+      cathodoluminescence) use SpectroscopicChannel.
+    slot_usage:
+      type:
+        equals_string: electron
+    attributes:
+      signal:
+        required: true
+        any_of:
+          - range: ElectronSignal
+          - range: ExtensionValue
+      detector:
+        description: Detector name, e.g. "Everhart-Thornley", "in-lens", "HAADF", "segment A".
+      beam_energy:
+        range: Value
+        inlined: true
+      collection_angle:
+        description: Collection angle of a STEM detector, typically in milliradian.
+        range: Interval
+        inlined: true
+
+  ScanningProbeChannel:
+    is_a: Channel
+    description: >
+      AFM and related probe techniques. Each recorded signal and scan direction is one channel; the physical unit goes
+      in `quantity`. Force-volume and spectroscopy grids add a non-spatial axis, not channels.
+    slot_usage:
+      type:
+        equals_string: scanning_probe
+    attributes:
+      technique:
+        any_of:
+          - range: ScanningProbeTechnique
+          - range: ExtensionValue
+      mode:
+        any_of:
+          - range: ScanningProbeMode
+          - range: ExtensionValue
+      signal:
+        required: true
+        any_of:
+          - range: ScanningProbeSignal
+          - range: ExtensionValue
+      scan_direction:
+        range: ScanDirection
+      pass:
+        description: Main pass, or the interleaved lift pass of MFM and KPFM.
+        range: ScanPass
+      harmonic:
+        description: Demodulation order, e.g. 2 or 3 in s-SNOM.
+        range: integer
+        minimum_value: 1
+
+  SpectroscopicChannel:
+    is_a: Channel
+    description: >
+      A map of one band, line or species from a spectral technique: X-ray, electron, vibrational, luminescence or mass
+      spectrometry. The analyte is an `entities` entry (role signal for an isotope tag, target for an element or
+      molecule). A continuous spectral dimension is better stored as an axis; one unbound spectroscopic channel then
+      describes the image.
+    slot_usage:
+      type:
+        equals_string: spectroscopic
+    attributes:
+      technique:
+        required: true
+        any_of:
+          - range: SpectroscopicTechnique
+          - range: ExtensionValue
+      band:
+        description: Energy window, Raman shift, wavenumber or m/z window.
+        range: Band
+        inlined: true
+      line:
+        description: X-ray line or absorption edge, e.g. "Ka", "La", "L2,3".
+      excitation:
+        description: Laser wavelength for Raman, beam energy for EDS.
+        any_of:
+          - range: Band
+          - range: Value
+
+  DiffractionChannel:
+    is_a: Channel
+    description: >
+      Quantities derived from diffraction patterns, mostly in materials science. A phase map is categorical and uses
+      `quantity.categories`; an inverse-pole-figure map is three channels with `component` R, G, B.
+    slot_usage:
+      type:
+        equals_string: diffraction
+    attributes:
+      technique:
+        any_of:
+          - range: DiffractionTechnique
+          - range: ExtensionValue
+      signal:
+        required: true
+        any_of:
+          - range: DiffractionSignal
+          - range: ExtensionValue
+      reference_frame:
+        description: Sample reference frame convention for orientations.
+
+  XrayChannel:
+    is_a: Channel
+    description: X-ray imaging and tomography that is not resolved by energy; energy-resolved maps use SpectroscopicChannel.
+    slot_usage:
+      type:
+        equals_string: xray
+    attributes:
+      contrast:
+        any_of:
+          - range: XrayContrast
+          - range: ExtensionValue
+      energy:
+        description: Monochromatic energy or spectrum window.
+        any_of:
+          - range: Band
+          - range: Value
+
+  ComputedChannel:
+    is_a: Channel
+    description: >
+      A channel with no physical modality of its own: model outputs, ratios, feature maps. A deconvolved or projected
+      channel keeps its physical type and only sets `provenance.origin` to derived.
+    slot_usage:
+      type:
+        equals_string: computed
+      provenance:
+        description: Inputs and method. Computed channels MUST have origin derived.
+        range: DerivedProvenance
+        required: true
+    attributes:
+      kind:
+        any_of:
+          - range: ComputedKind
+          - range: ExtensionValue
+      operation:
+        description: The formula or method, as text or a URI.
+      model:
+        range: Model
+        inlined: true
+      emulates:
+        description: What a prediction stands in for.
+        range: EmulatedChannel
+        inlined: true
+
+  GenericChannel:
+    is_a: Channel
+    description: A channel no core type fits. It has only the base attributes.
+    slot_usage:
+      type:
+        equals_string: generic
+
+  OtherChannel:
+    is_a: Channel
+    description: >
+      Fallback for a channel with an extension type. Its type MUST be a namespaced http(s) URI, so a misspelled core
+      type does not fall back. It MUST be valid as a base channel and MAY carry extension attributes. Core type names
+      are not URIs, so a core-type channel never validates as OtherChannel and must pass its own class.
+    extra_slots:
+      allowed: true
+    slot_usage:
+      type:
+        pattern: "^https?://"
+
+types:
+  ExtensionValue:
+    typeof: string
+    description: An extension value for an enumerated attribute, given as an http(s) URI.
+    pattern: "^https?://"
+
+enums:
+  FluorescenceMeasurement:
+    permissible_values:
+      intensity:
+        description: Emission intensity. The default.
+      lifetime:
+        description: Fluorescence lifetime, e.g. in nanoseconds.
+      phasor_g:
+        description: G coordinate of a FLIM phasor.
+      phasor_s:
+        description: S coordinate of a FLIM phasor.
+      anisotropy:
+        description: Fluorescence anisotropy.
+
+  AcquisitionMode:
+    description: Values of the OME model's AcquisitionMode enumeration, kept so OME-XML round-trips are lossless.
+    permissible_values:
+      WideField:
+      LaserScanningConfocalMicroscopy:
+      SpinningDiskConfocal:
+      SlitScanConfocal:
+      SweptFieldConfocal:
+      MultiPhotonMicroscopy:
+      StructuredIllumination:
+      SingleMoleculeImaging:
+      TotalInternalReflection:
+      FluorescenceLifetime:
+      SpectralImaging:
+      FluorescenceCorrelationSpectroscopy:
+      NearFieldScanningOpticalMicroscopy:
+      SecondHarmonicGenerationImaging:
+      PALM:
+      STORM:
+      STED:
+      TIRF:
+      FSM:
+      LCM:
+      SPIM:
+      BrightField:
+      Other:
+
+  ContrastMethod:
+    permissible_values:
+      brightfield:
+      darkfield:
+      phase_contrast:
+      DIC:
+        description: Differential interference contrast.
+      oblique:
+      hoffman:
+        description: Hoffman modulation contrast.
+      polarized:
+      quantitative_phase:
+      interference:
+      SHG:
+        description: Second-harmonic generation.
+      THG:
+        description: Third-harmonic generation.
+
+  Illumination:
+    permissible_values:
+      transmitted:
+      reflected:
+        description: Reflected light, e.g. metallography or wafer inspection.
+      oblique:
+
+  ElectronSignal:
+    permissible_values:
+      SE:
+        description: Secondary electrons.
+      BSE:
+        description: Backscattered electrons.
+      TEM_BF:
+      TEM_DF:
+      STEM_BF:
+      STEM_ABF:
+      STEM_ADF:
+      STEM_HAADF:
+      DPC:
+        description: Differential phase contrast.
+      iDPC:
+        description: Integrated differential phase contrast.
+      EBIC:
+        description: Electron-beam-induced current.
+      absorbed_current:
+
+  ScanningProbeTechnique:
+    permissible_values:
+      AFM:
+      STM:
+      KPFM:
+      MFM:
+      EFM:
+      c-AFM:
+      PFM:
+      s-SNOM:
+      SThM:
+      SICM:
+
+  ScanningProbeMode:
+    permissible_values:
+      contact:
+      tapping:
+      non_contact:
+      peak_force:
+      lift:
+
+  ScanningProbeSignal:
+    permissible_values:
+      height:
+      deflection:
+      amplitude:
+      phase:
+      frequency_shift:
+      lateral_force:
+      adhesion:
+      modulus:
+      deformation:
+      dissipation:
+      current:
+      surface_potential:
+      piezo_amplitude:
+      piezo_phase:
+      near_field_amplitude:
+      near_field_phase:
+
+  ScanDirection:
+    permissible_values:
+      trace:
+        description: Forward line of the fast scan axis.
+      retrace:
+        description: Backward line of the fast scan axis.
+
+  ScanPass:
+    permissible_values:
+      main:
+      lift:
+        description: Interleaved second pass at a lift height, used in MFM and KPFM.
+
+  SpectroscopicTechnique:
+    permissible_values:
+      EDS:
+      WDS:
+      EELS:
+      XRF:
+      XPS:
+      AES:
+      CL:
+        description: Cathodoluminescence.
+      Raman:
+      IR:
+      CARS:
+      SRS:
+      MALDI:
+      DESI:
+      SIMS:
+        description: Secondary-ion mass spectrometry, including MIBI.
+      LA-ICP-MS:
+        description: Laser-ablation ICP mass spectrometry, including imaging mass cytometry.
+      LIBS:
+
+  DiffractionTechnique:
+    permissible_values:
+      EBSD:
+      TKD:
+      4D-STEM:
+      XRD:
+      ED:
+
+  DiffractionSignal:
+    permissible_values:
+      euler_phi1:
+      euler_Phi:
+      euler_phi2:
+      quaternion_a:
+      quaternion_b:
+      quaternion_c:
+      quaternion_d:
+      phase:
+        description: Categorical phase map; use quantity.categories.
+      band_contrast:
+      band_slope:
+      confidence_index:
+      image_quality:
+      MAD:
+        description: Mean angular deviation.
+      KAM:
+        description: Kernel average misorientation.
+      strain_xx:
+      strain_yy:
+      strain_zz:
+      strain_xy:
+      strain_xz:
+      strain_yz:
+      virtual_BF:
+      virtual_ADF:
+
+  XrayContrast:
+    permissible_values:
+      absorption:
+      phase:
+      darkfield:
+
+  ComputedKind:
+    permissible_values:
+      probability:
+      prediction:
+      classification:
+      ratio:
+      difference:
+      normalized:
+        description: Normalized signal, e.g. delta F over F.
+      feature:
+      distance:
