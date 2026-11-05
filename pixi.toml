@@ -1,0 +1,16 @@
+[workspace]
+authors = ["Wouter-Michiel Vierdag <michiel.vierdag@cellonautica.ai>"]
+channels = ["conda-forge"]
+name = "rfc7-drafts"
+platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+#gen-markdown = "gen-markdown -d ./markdown ngff_models.yml"
+gen-json-schema = "gen-json-schema schemas/ngff_models.yml > schemas/ngff_models.schema.json"
+gen-pydantic = "gen-pydantic schemas/ngff_models.yml > implementations/ngff_models.py"
+gen-typescript = "gen-typescript schemas/ngff_models.yml > implementations/ngff_models.ts"
+gen-all = { depends-on = ["gen-json-schema", "gen-pydantic", "gen-typescript" ] }
+
+[dependencies]
+linkml = ">=1.12.1,<2"
