@@ -6,11 +6,44 @@ platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 version = "0.1.0"
 
 [tasks]
-#gen-markdown = "gen-markdown -d ./markdown ngff_models.yml"
-gen-json-schema = "gen-json-schema schemas/ngff_models.yml > schemas/ngff_models.schema.json"
-gen-pydantic = "gen-pydantic schemas/ngff_models.yml > implementations/ngff_models.py"
-gen-typescript = "gen-typescript schemas/ngff_models.yml > implementations/ngff_models.ts"
-gen-all = { depends-on = ["gen-json-schema", "gen-pydantic", "gen-typescript" ] }
+gen-axes-json-schema = "gen-json-schema schemas/ngff_axes.yaml > schemas/ngff_axes.schema.json"
+gen-axes-pydantic = "gen-pydantic --template-dir templates/pydantic schemas/ngff_axes.yaml > implementations/ngff_axes.py"
+gen-axes-typescript = "gen-typescript schemas/ngff_axes.yaml > implementations/ngff_axes.ts"
+
+# --top-class makes the JSON Schema validate a single channel object
+gen-channel-json-schema = "gen-json-schema --top-class Channel schemas/ngff_channel.yaml > schemas/ngff_channel.schema.json"
+gen-channel-pydantic = "gen-pydantic --template-dir templates/pydantic schemas/ngff_channel.yaml > implementations/ngff_channel.py"
+gen-channel-typescript = "gen-typescript schemas/ngff_channel.yaml > implementations/ngff_channel.ts"
+
+# I did not indicate a class as tree_root so the json holds definition only for this schema.
+gen-channel-types-json-schema = "gen-json-schema schemas/ngff_channel_types.yaml > schemas/ngff_channel_types.schema.json"
+gen-channel-types-pydantic = "gen-pydantic --template-dir templates/pydantic schemas/ngff_channel_types.yaml > implementations/ngff_channel_types.py"
+gen-channel-types-typescript = "gen-typescript schemas/ngff_channel_types.yaml > implementations/ngff_channel_types.ts"
+
+gen-json-schema = { depends-on = ["gen-axes-json-schema", "gen-channel-json-schema", "gen-channel-types-json-schema"] }
+gen-pydantic = { depends-on = ["gen-axes-pydantic", "gen-channel-pydantic", "gen-channel-types-pydantic"] }
+gen-typescript = { depends-on = ["gen-axes-typescript", "gen-channel-typescript", "gen-channel-types-typescript"] }
+gen-all = { depends-on = ["gen-json-schema", "gen-pydantic", "gen-typescript"] }
+
+# Lint the schemas. It fails on errors, not on style warnings
+lint = "linkml-lint --ignore-warnings schemas"
+
+# TypeScript types generated from the JSON Schema (json-schema-to-typescript). Unlike gen-typescript, these keep
+# the channel union, literal types and enums; patch_types.mjs narrows OtherChannel.type to an http(s) URI.
+npm-install = "npm install --no-audit --no-fund"
+gen-typescript-from-json-schema = { cmd = "npm run gen-types", depends-on = ["gen-axes-json-schema", "npm-install"] }
+
+# Test: every json in test_data is tested with both python and typescript. Bad_*.json must be rejected. We might want
+# to create a more complete list of examples here. For Python, known pydantic gaps are treated as expected failures
+test-python = { cmd = "pytest tests_python -q", depends-on = ["gen-axes-json-schema", "gen-axes-pydantic"] }
+# TypeScript: runtime validation with Ajv against the JSON Schema, and a compile-time check with tsc.
+test-typescript-runtime = { cmd = "npm test", depends-on = ["gen-axes-json-schema", "npm-install"] }
+test-typescript-types = { cmd = "npm run typecheck", depends-on = ["gen-typescript-from-json-schema"] }
+test-typescript = { depends-on = ["test-typescript-runtime", "test-typescript-types"] }
+test = { depends-on = ["lint", "test-python", "test-typescript"] }
 
 [dependencies]
 linkml = ">=1.12.1,<2"
+jsonschema = ">=4"
+pytest = ">=8"
+nodejs = ">=22"
