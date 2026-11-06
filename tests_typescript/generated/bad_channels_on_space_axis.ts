@@ -1,0 +1,3 @@
+import type { OME_NGFF_Axes } from "../../implementations/ngff_axes.from_json_schema";
+// @ts-expect-error broken on purpose
+export const doc = {"axes":[{"name":"c","type":"channel"},{"name":"y","type":"space","unit":"micrometer","channels":[{"id":"d","name":"DAPI","type":"generic"}]}]} satisfies OME_NGFF_Axes;

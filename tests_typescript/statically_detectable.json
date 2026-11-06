@@ -1,0 +1,17 @@
+[
+ "bad_afm_direction",
+ "bad_afm_no_signal",
+ "bad_axis_type_classname",
+ "bad_channel_as_string",
+ "bad_channels_on_space_axis",
+ "bad_computed_acquired",
+ "bad_computed_no_prov",
+ "bad_em_no_signal",
+ "bad_empty_channels",
+ "bad_fluo_band",
+ "bad_fluo_typo_key",
+ "bad_generic_extra",
+ "bad_spec_no_technique",
+ "bad_type_not_uri",
+ "bad_type_typo"
+]

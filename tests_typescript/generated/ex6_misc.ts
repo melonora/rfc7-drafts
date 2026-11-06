@@ -1,0 +1,3 @@
+import type { OME_NGFF_Axes } from "../../implementations/ngff_axes.from_json_schema";
+
+export const doc = {"axes":[{"name":"c","type":"channel","channels":[{"id":"ct","name":"CT","type":"xray","contrast":"absorption","energy":{"value":60,"unit":"kiloelectronvolt"},"quantity":{"name":"linear_attenuation","unit":"1/centimeter"}},{"id":"g","name":"Unknown detector","type":"generic"},{"id":"us","name":"Ultrasound B-mode","type":"https://example.org/ngff/ultrasound","frequency_mhz":15},{"id":"sem-x","name":"Custom signal","type":"electron","signal":"https://example.org/ngff/my-detector-signal"}]},{"name":"y","type":"space","unit":"micrometer"},{"name":"x","type":"space","unit":"micrometer"}]} satisfies OME_NGFF_Axes;

@@ -1,0 +1,16 @@
+{
+  "name": "rfc7-drafts-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gen-types": "json2ts -i schemas/ngff_axes.schema.json -o implementations/ngff_axes.from_json_schema.ts --unreachableDefinitions && node tests_typescript/patch_types.mjs",
+    "test": "node --test tests_typescript/*.test.mjs",
+    "typecheck": "node tests_typescript/make_typecheck.mjs && tsc -p tests_typescript"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "json-schema-to-typescript": "^16.0.0",
+    "typescript": "^7.0.2"
+  }
+}
