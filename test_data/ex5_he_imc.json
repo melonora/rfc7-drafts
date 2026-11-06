@@ -1,0 +1,82 @@
+{
+ "axes": [
+  {
+   "name": "c",
+   "type": "channel",
+   "channels": [
+    {
+     "id": "he-r",
+     "name": "H&E red",
+     "type": "optical",
+     "contrast_method": "brightfield",
+     "component": {
+      "model": "RGB",
+      "name": "R",
+      "group": "he"
+     }
+    },
+    {
+     "id": "he-g",
+     "name": "H&E green",
+     "type": "optical",
+     "contrast_method": "brightfield",
+     "component": {
+      "model": "RGB",
+      "name": "G",
+      "group": "he"
+     }
+    },
+    {
+     "id": "he-b",
+     "name": "H&E blue",
+     "type": "optical",
+     "contrast_method": "brightfield",
+     "component": {
+      "model": "RGB",
+      "name": "B",
+      "group": "he"
+     }
+    },
+    {
+     "id": "cd3",
+     "name": "CD3 (165Ho)",
+     "type": "spectroscopic",
+     "technique": "LA-ICP-MS",
+     "band": {
+      "center": 165,
+      "width": 1,
+      "unit": "m/z"
+     },
+     "entities": [
+      {
+       "name": "165Ho",
+       "role": "signal"
+      },
+      {
+       "name": "CD3",
+       "role": "target"
+      },
+      {
+       "name": "T cell",
+       "term": "CL:0000084",
+       "role": "observed_entity"
+      }
+     ],
+     "quantity": {
+      "name": "counts"
+     }
+    }
+   ]
+  },
+  {
+   "name": "y",
+   "type": "space",
+   "unit": "micrometer"
+  },
+  {
+   "name": "x",
+   "type": "space",
+   "unit": "micrometer"
+  }
+ ]
+}

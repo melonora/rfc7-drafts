@@ -1,0 +1,16 @@
+{
+ "axes": [
+  {
+   "name": "c",
+   "type": "channel",
+   "channels": [
+    "DAPI"
+   ]
+  },
+  {
+   "name": "y",
+   "type": "space",
+   "unit": "micrometer"
+  }
+ ]
+}

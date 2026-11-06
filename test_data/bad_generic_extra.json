@@ -1,0 +1,29 @@
+{
+ "axes": [
+  {
+   "name": "c",
+   "type": "channel",
+   "channels": [
+    {
+     "id": "g",
+     "name": "G",
+     "type": "generic",
+     "excitation": {
+      "center": 488,
+      "unit": "nanometer"
+     }
+    }
+   ]
+  },
+  {
+   "name": "y",
+   "type": "space",
+   "unit": "micrometer"
+  },
+  {
+   "name": "x",
+   "type": "space",
+   "unit": "micrometer"
+  }
+ ]
+}

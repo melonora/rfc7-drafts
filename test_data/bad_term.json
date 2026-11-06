@@ -1,0 +1,30 @@
+{
+ "axes": [
+  {
+   "name": "c",
+   "type": "channel",
+   "channels": [
+    {
+     "id": "d",
+     "name": "DAPI",
+     "type": "generic",
+     "terms": [
+      "not a term"
+     ],
+     "entities": [
+      {
+       "name": "nucleus",
+       "term": "GO:0005634",
+       "role": "observed_entity"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "y",
+   "type": "space",
+   "unit": "micrometer"
+  }
+ ]
+}

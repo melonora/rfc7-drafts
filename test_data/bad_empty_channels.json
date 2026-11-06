@@ -1,0 +1,14 @@
+{
+ "axes": [
+  {
+   "name": "c",
+   "type": "channel",
+   "channels": []
+  },
+  {
+   "name": "y",
+   "type": "space",
+   "unit": "micrometer"
+  }
+ ]
+}

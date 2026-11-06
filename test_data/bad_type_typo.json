@@ -1,0 +1,24 @@
+{
+ "axes": [
+  {
+   "name": "c",
+   "type": "channel",
+   "channels": [
+    {
+     "id": "f",
+     "name": "F",
+     "type": "fluorecence",
+     "excitation": {
+      "center": 488,
+      "unit": "nanometer"
+     }
+    }
+   ]
+  },
+  {
+   "name": "y",
+   "type": "space",
+   "unit": "micrometer"
+  }
+ ]
+}

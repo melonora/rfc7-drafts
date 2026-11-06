@@ -1,0 +1,26 @@
+{
+ "axes": [
+  {
+   "name": "c",
+   "type": "channel",
+   "channels": [
+    {
+     "id": "f",
+     "name": "F",
+     "type": "fluorescence",
+     "photons": 0
+    }
+   ]
+  },
+  {
+   "name": "y",
+   "type": "space",
+   "unit": "micrometer"
+  },
+  {
+   "name": "x",
+   "type": "space",
+   "unit": "micrometer"
+  }
+ ]
+}

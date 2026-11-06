@@ -1,0 +1,83 @@
+{
+ "axes": [
+  {
+   "name": "c",
+   "type": "channel",
+   "channels": [
+    {
+     "id": "se",
+     "name": "SE",
+     "type": "electron",
+     "signal": "SE",
+     "detector": "Everhart-Thornley",
+     "beam_energy": {
+      "value": 15,
+      "unit": "kilovolt"
+     }
+    },
+    {
+     "id": "bse",
+     "name": "BSE",
+     "type": "electron",
+     "signal": "BSE",
+     "beam_energy": {
+      "value": 15,
+      "unit": "kilovolt"
+     }
+    },
+    {
+     "id": "fe-ka",
+     "name": "Fe K\u03b1",
+     "type": "spectroscopic",
+     "technique": "EDS",
+     "line": "Ka",
+     "band": {
+      "center": 6.4,
+      "width": 0.3,
+      "unit": "kiloelectronvolt"
+     },
+     "entities": [
+      {
+       "name": "iron",
+       "role": "target"
+      }
+     ],
+     "quantity": {
+      "name": "counts"
+     }
+    },
+    {
+     "id": "o-ka",
+     "name": "O K\u03b1",
+     "type": "spectroscopic",
+     "technique": "EDS",
+     "line": "Ka",
+     "band": {
+      "center": 0.525,
+      "width": 0.1,
+      "unit": "kiloelectronvolt"
+     },
+     "entities": [
+      {
+       "name": "oxygen",
+       "role": "target"
+      }
+     ],
+     "quantity": {
+      "name": "counts"
+     }
+    }
+   ]
+  },
+  {
+   "name": "y",
+   "type": "space",
+   "unit": "micrometer"
+  },
+  {
+   "name": "x",
+   "type": "space",
+   "unit": "micrometer"
+  }
+ ]
+}

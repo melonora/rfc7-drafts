@@ -1,0 +1,87 @@
+{
+ "axes": [
+  {
+   "name": "c",
+   "type": "channel",
+   "channels": [
+    {
+     "id": "phase",
+     "name": "Phase",
+     "type": "diffraction",
+     "technique": "EBSD",
+     "signal": "phase",
+     "quantity": {
+      "name": "phase",
+      "categories": [
+       {
+        "value": 0,
+        "name": "not indexed"
+       },
+       {
+        "value": 1,
+        "name": "ferrite"
+       },
+       {
+        "value": 2,
+        "name": "austenite"
+       }
+      ]
+     }
+    },
+    {
+     "id": "phi1",
+     "name": "Euler \u03c61",
+     "type": "diffraction",
+     "technique": "EBSD",
+     "signal": "euler_phi1",
+     "quantity": {
+      "name": "angle",
+      "unit": "degree",
+      "value_scale": 0.01
+     }
+    },
+    {
+     "id": "Phi",
+     "name": "Euler \u03a6",
+     "type": "diffraction",
+     "technique": "EBSD",
+     "signal": "euler_Phi",
+     "quantity": {
+      "name": "angle",
+      "unit": "degree",
+      "value_scale": 0.01
+     }
+    },
+    {
+     "id": "phi2",
+     "name": "Euler \u03c62",
+     "type": "diffraction",
+     "technique": "EBSD",
+     "signal": "euler_phi2",
+     "quantity": {
+      "name": "angle",
+      "unit": "degree",
+      "value_scale": 0.01
+     }
+    },
+    {
+     "id": "bc",
+     "name": "Band contrast",
+     "type": "diffraction",
+     "technique": "EBSD",
+     "signal": "band_contrast"
+    }
+   ]
+  },
+  {
+   "name": "y",
+   "type": "space",
+   "unit": "micrometer"
+  },
+  {
+   "name": "x",
+   "type": "space",
+   "unit": "micrometer"
+  }
+ ]
+}
