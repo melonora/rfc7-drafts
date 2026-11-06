@@ -1,0 +1,49 @@
+{#- Override of LinkML's gen-pydantic class template (linkml 1.12). Adds, from each class's LinkML metadata:
+    1. extra_slots.allowed -> model_config extra="allow" (LinkML ignores extra_slots).
+    2. class-level any_of with slot_conditions -> a model validator requiring one group of slots (LinkML drops it).
+    The enum-or-URI check lives in attribute.py.jinja, because this template receives attributes already rendered. -#}
+{% if is_type_alias %}
+{% if description %}
+# {{ description }}
+{% endif -%}
+{{ name }} = {{ type_alias_value }}
+{% else %}
+class {{ name }}({% if bases is string %}{{ bases }}{% else %}{{ bases | join(', ') }}{% endif %}):
+    {% if description %}
+    """
+    {{ description | indent(width=4) }}
+    """
+    {% endif -%}
+    {% if meta %}
+    linkml_meta: ClassVar[LinkMLMeta] = LinkMLMeta({{ meta | pprint | indent(width=8) }})
+
+    {% endif %}
+    {% if meta and meta.extra_slots and meta.extra_slots.allowed %}
+    model_config = ConfigDict(extra="allow")
+
+    {% endif %}
+    {%  if attributes or validators %}
+        {% if attributes %}
+            {% for attr in attributes.values() %}
+    {{ attr }}
+            {% endfor -%}
+        {% endif %}
+        {% if validators %}
+            {% for validator in validators.values() %}
+
+    {{ validator }}
+            {% endfor -%}
+        {% endif %}
+    {% elif not (meta and meta.any_of) %}
+    pass
+    {% endif %}
+    {% if meta and meta.any_of %}
+
+    @model_validator(mode="after")
+    def check_any_of(self):
+        groups = [{% for alt in meta.any_of %}[{% for slot in (alt.slot_conditions or {}).keys() %}"{{ slot }}", {% endfor %}], {% endfor %}]
+        if not any(all(getattr(self, s, None) is not None for s in group) for group in groups):
+            raise ValueError(f"{{ name }} needs one of these sets of attributes: {groups}")
+        return self
+    {% endif %}
+{% endif %}

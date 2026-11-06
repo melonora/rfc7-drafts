@@ -1,0 +1,36 @@
+{{name}}: {{ range }} = Field(default={{ field }}
+{%- if alias %}, alias="{{alias}}"{% endif -%}
+{%- if title != None %}, title="{{title}}"{% endif -%}
+{%- if description %}, description="""{{description}}"""{% endif -%}
+{%- if equals_number != None %}
+    , le={{equals_number}}, ge={{equals_number}}
+{%- else -%}
+    {%- if minimum_value != None %}, ge={{minimum_value}}{% endif -%}
+    {%- if maximum_value != None %}, le={{maximum_value}}{% endif -%}
+{%- endif -%}
+{%- if multivalued and exact_cardinality != None -%}
+    , min_length={{exact_cardinality}}, max_length={{exact_cardinality}}
+{%- elif multivalued -%}
+    {%- if minimum_cardinality != None %}, min_length={{minimum_cardinality}}{% endif -%}
+    {%- if maximum_cardinality != None %}, max_length={{maximum_cardinality}}{% endif -%}
+{%- endif -%}
+{%- if meta -%}
+    , json_schema_extra = { "linkml_meta": {{ meta | pprint | indent(width=8) }} }
+{%- endif -%})
+
+{%- if meta and meta.any_of -%}
+{%- set ranges = meta.any_of | map(attribute='range') | list -%}
+{%- if 'ExtensionValue' in ranges -%}
+{%- set enum_range = ranges | reject('equalto', 'ExtensionValue') | first %}
+
+    @field_validator("{{ name }}")
+    def check_{{ name }}_enum_or_uri(cls, v):
+        for item in (v if isinstance(v, list) else [v]):
+            if item is None:
+                continue
+            value = item.value if isinstance(item, Enum) else item
+            if value not in {e.value for e in {{ enum_range }}} and not re.match(r"^https?://", str(value)):
+                raise ValueError(f"{{ name }} must be a value of {{ enum_range }} or an http(s) URI, got {value!r}")
+        return v
+{%- endif -%}
+{%- endif -%}
