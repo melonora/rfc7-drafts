@@ -1,7 +1,12 @@
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+pixi.lock
+
+package-lock.json
 
 .idea
 
 node_modules
+
+
