@@ -1,0 +1,378 @@
+{
+    "$defs": {
+        "Category": {
+            "additionalProperties": false,
+            "description": "",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "term": {
+                    "description": "Ontology term for the category as a CURIE.",
+                    "pattern": "^[A-Za-z][A-Za-z0-9._+-]*:\\S+$",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "value": {
+                    "description": "The stored pixel value.",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "value",
+                "name"
+            ],
+            "title": "Category",
+            "type": "object"
+        },
+        "Channel": {
+            "additionalProperties": false,
+            "description": "The base channel. Every channel, whatever its type, MUST be valid as a base channel. Readers that do not recognise `type` MUST treat the channel as a base channel and MUST ignore attributes they do not know. Writers MUST NOT put rendering attributes (colour, window, lookup table) on a channel.",
+            "properties": {
+                "component": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Component"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Membership of a colour image stored as separate planes."
+                },
+                "description": {
+                    "description": "Free-text description of the channel for humans and language models.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "entities": {
+                    "description": "What the channel reports on, each with its role.",
+                    "items": {
+                        "$ref": "#/$defs/Entity"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Identifier of the channel, unique for the multiscale. Other metadata (rendering, biological annotation, statistics, transformations) references the channel by this id. Follows the RFC-8 id pattern; UUIDs are allowed but not required.\n",
+                    "pattern": "^[a-zA-Z0-9\\-_.]+$",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Human-readable name of the channel. It MUST be unique within the `channels` list, so that a channel can be looked up by name.\n",
+                    "type": "string"
+                },
+                "provenance": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Provenance"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Whether the channel was acquired, derived or simulated, and from what."
+                },
+                "quantity": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Quantity"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "What the stored values measure. This attribute is OPTIONAL. When absent, values are intensities in arbitrary units.\n"
+                },
+                "terms": {
+                    "description": "Ontology terms for the channel as a whole, e.g. an imaging-method term, as CURIEs. Prefixes SHOULD follow bioregistry.io.\n",
+                    "items": {
+                        "pattern": "^[A-Za-z][A-Za-z0-9._+-]*:\\S+$",
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "type": {
+                    "description": "The channel type: one of the core types (fluorescence, optical, electron, scanning_probe, spectroscopic, diffraction, xray, computed), \"generic\", or an extension type given as a namespaced http(s) URI. Typed subclasses pin this value with equals_string; other values are invalid.\n",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "type"
+            ],
+            "title": "Channel",
+            "type": "object"
+        },
+        "ColorComponent": {
+            "description": "",
+            "enum": [
+                "R",
+                "G",
+                "B",
+                "A"
+            ],
+            "title": "ColorComponent",
+            "type": "string"
+        },
+        "ColorModel": {
+            "description": "",
+            "enum": [
+                "RGB",
+                "RGBA"
+            ],
+            "title": "ColorModel",
+            "type": "string"
+        },
+        "Component": {
+            "additionalProperties": false,
+            "description": "Channels with the same `group` together form one colour image. A group MUST contain each component of its colour model exactly once.",
+            "properties": {
+                "group": {
+                    "description": "Identifier shared by the channels of one colour image.",
+                    "type": "string"
+                },
+                "model": {
+                    "$ref": "#/$defs/ColorModel"
+                },
+                "name": {
+                    "$ref": "#/$defs/ColorComponent"
+                }
+            },
+            "required": [
+                "model",
+                "name",
+                "group"
+            ],
+            "title": "Component",
+            "type": "object"
+        },
+        "Entity": {
+            "additionalProperties": false,
+            "description": "Something the channel reports on. The same roles apply across domains: a DAPI channel (DAPI, DNA, nucleus), an imaging mass cytometry channel (165Ho, CD3, T cell) and an EDS map (iron in a steel matrix).",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/$defs/EntityRole"
+                },
+                "term": {
+                    "description": "Ontology or database term for the entity as a CURIE. Prefixes SHOULD follow bioregistry.io.",
+                    "pattern": "^[A-Za-z][A-Za-z0-9._+-]*:\\S+$",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "name",
+                "role"
+            ],
+            "title": "Entity",
+            "type": "object"
+        },
+        "EntityRole": {
+            "description": "",
+            "enum": [
+                "signal",
+                "target",
+                "observed_entity"
+            ],
+            "title": "EntityRole",
+            "type": "string"
+        },
+        "Origin": {
+            "description": "",
+            "enum": [
+                "acquired",
+                "derived",
+                "simulated"
+            ],
+            "title": "Origin",
+            "type": "string"
+        },
+        "Provenance": {
+            "additionalProperties": false,
+            "description": "",
+            "properties": {
+                "method": {
+                    "description": "Short description of, or URI for, the method that produced the channel.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "origin": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Origin"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "sources": {
+                    "description": "Ids of the channels this channel was derived from. Channels in other documents will be referenced with RFC-8 References once RFC-8 is settled.\n",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                }
+            },
+            "title": "Provenance",
+            "type": "object"
+        },
+        "Quantity": {
+            "additionalProperties": false,
+            "description": "The physical quantity the stored values represent and how to calibrate them. The calibration applies to pixel values, not to coordinates, and is unrelated to RFC-5 scale transformations.",
+            "properties": {
+                "categories": {
+                    "description": "For categorical channels such as EBSD phase maps or classifier outputs, a map from stored value to the category it stands for, serialized as { \"<stored value>\": { \"name\": ..., \"term\": ... } }.\n",
+                    "items": {
+                        "$ref": "#/$defs/Category"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "The measured quantity, e.g. intensity, counts, height, phase, potential, force, modulus, lifetime, probability, angle, concentration. Values from the recommended vocabulary SHOULD be used; other values are allowed.\n",
+                    "type": "string"
+                },
+                "unit": {
+                    "description": "Unit of the physical value, spelled as for axes (e.g. nanometer, volt, degree, nanosecond). This attribute is OPTIONAL; if it is absent, the values are in arbitrary units.\n",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "value_offset": {
+                    "description": "Linear calibration, physical = stored * value_scale + value_offset. Defaults to 0.",
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "value_scale": {
+                    "description": "Linear calibration, physical = stored * value_scale + value_offset. Defaults to 1.",
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "title": "Quantity",
+            "type": "object"
+        }
+    },
+    "$id": "https://w3id.org/ome/ngff/channel",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": false,
+    "description": "The base channel. Every channel, whatever its type, MUST be valid as a base channel. Readers that do not recognise `type` MUST treat the channel as a base channel and MUST ignore attributes they do not know. Writers MUST NOT put rendering attributes (colour, window, lookup table) on a channel.",
+    "metamodel_version": "1.12.0",
+    "properties": {
+        "component": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/Component"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "description": "Membership of a colour image stored as separate planes."
+        },
+        "description": {
+            "description": "Free-text description of the channel for humans and language models.",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "entities": {
+            "description": "What the channel reports on, each with its role.",
+            "items": {
+                "$ref": "#/$defs/Entity"
+            },
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "id": {
+            "description": "Identifier of the channel, unique for the multiscale. Other metadata (rendering, biological annotation, statistics, transformations) references the channel by this id. Follows the RFC-8 id pattern; UUIDs are allowed but not required.\n",
+            "pattern": "^[a-zA-Z0-9\\-_.]+$",
+            "type": "string"
+        },
+        "name": {
+            "description": "Human-readable name of the channel. It MUST be unique within the `channels` list, so that a channel can be looked up by name.\n",
+            "type": "string"
+        },
+        "provenance": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/Provenance"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "description": "Whether the channel was acquired, derived or simulated, and from what."
+        },
+        "quantity": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/Quantity"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "description": "What the stored values measure. This attribute is OPTIONAL. When absent, values are intensities in arbitrary units.\n"
+        },
+        "terms": {
+            "description": "Ontology terms for the channel as a whole, e.g. an imaging-method term, as CURIEs. Prefixes SHOULD follow bioregistry.io.\n",
+            "items": {
+                "pattern": "^[A-Za-z][A-Za-z0-9._+-]*:\\S+$",
+                "type": "string"
+            },
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "type": {
+            "description": "The channel type: one of the core types (fluorescence, optical, electron, scanning_probe, spectroscopic, diffraction, xray, computed), \"generic\", or an extension type given as a namespaced http(s) URI. Typed subclasses pin this value with equals_string; other values are invalid.\n",
+            "type": "string"
+        }
+    },
+    "required": [
+        "id",
+        "name",
+        "type"
+    ],
+    "title": "OME_NGFF_Channel",
+    "type": "object",
+    "version": "0.1.0"
+}
+
