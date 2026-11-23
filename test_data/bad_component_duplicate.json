@@ -1,0 +1,56 @@
+{
+  "axes": [
+    {
+      "name": "c",
+      "type": "channel",
+      "channels": [
+        {
+          "id": "cam-b",
+          "name": "Camera blue",
+          "type": "optical",
+          "contrast_method": "brightfield",
+          "illumination": "reflected",
+          "component": {
+            "model": "RGB",
+            "name": "R",
+            "group": "cam"
+          }
+        },
+        {
+          "id": "cam-g",
+          "name": "Camera green",
+          "type": "optical",
+          "contrast_method": "brightfield",
+          "illumination": "reflected",
+          "component": {
+            "model": "RGB",
+            "name": "G",
+            "group": "cam"
+          }
+        },
+        {
+          "id": "cam-r",
+          "name": "Camera red",
+          "type": "optical",
+          "contrast_method": "brightfield",
+          "illumination": "reflected",
+          "component": {
+            "model": "RGB",
+            "name": "R",
+            "group": "cam"
+          }
+        }
+      ]
+    },
+    {
+      "name": "y",
+      "type": "space",
+      "unit": "micrometer"
+    },
+    {
+      "name": "x",
+      "type": "space",
+      "unit": "micrometer"
+    }
+  ]
+}

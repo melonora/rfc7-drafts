@@ -23,19 +23,32 @@ SCHEMA = json.loads((ROOT / "schemas" / "ngff_axes.schema.json").read_text())
 
 PYDANTIC_GAPS: dict[str, str] = {}
 
+# Rules the RFC states but no schema can express. Every implementation needs a custom check for these. Until
+# one exists the documents are expected failures (strict, so the test reports it once the rule is enforced).
+RULES_NOT_IN_SCHEMA: dict[str, str] = {
+    "bad_component_duplicate": "A colour group MUST contain each component of its model exactly once",
+}
 
 def expected_valid(path: Path) -> bool:
     return not path.name.startswith("bad_")
 
 
 def pydantic_param(path: Path):
+    # The Pydantic models are generated from the schema, so the gaps are shared with the json schema gaps.
+    gaps = {**RULES_NOT_IN_SCHEMA, **PYDANTIC_GAPS}
     marks = []
-    if path.stem in PYDANTIC_GAPS:
-        marks.append(pytest.mark.xfail(reason=PYDANTIC_GAPS[path.stem], strict=True))
+    if path.stem in gaps:
+        marks.append(pytest.mark.xfail(reason=gaps[path.stem], strict=True))
+    return pytest.param(path, id=path.stem, marks=marks)
+
+def schema_param(path: Path):
+    marks = []
+    if path.stem in RULES_NOT_IN_SCHEMA:
+        marks.append(pytest.mark.xfail(reason=RULES_NOT_IN_SCHEMA[path.stem], strict=True))
     return pytest.param(path, id=path.stem, marks=marks)
 
 
-@pytest.mark.parametrize("path", DOCUMENTS, ids=lambda p: p.stem)
+@pytest.mark.parametrize("path", [schema_param(p) for p in DOCUMENTS])
 def test_json_schema(path: Path) -> None:
     data = json.loads(path.read_text())
     if expected_valid(path):
