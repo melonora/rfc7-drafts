@@ -106,8 +106,8 @@ classes:
         ifabsent: float(0.0)
       categories:
         description: >
-          For categorical channels such as EBSD phase maps or classifier outputs, a map from stored value to the
-          category it stands for, serialized as { "<stored value>": { "name": ..., "term": ... } }.
+          For categorical channels such as EBSD phase maps or classifier outputs, the categories the stored values
+          stand for, as a list of { "value": <stored value>, "name": ..., "term": ... }.
         range: Category
         multivalued: true
         inlined_as_list: true
